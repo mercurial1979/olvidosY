@@ -2,50 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro Escolar</title>
+    <title>Registro y Reportes</title>
     <style>
-        body { font-family: Arial; max-width: 400px; margin: 50px auto; padding: 20px; }
+        body { font-family: Arial; max-width: 600px; margin: 30px auto; padding: 20px; }
+        .section { background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 8px; }
         input, select, button { width: 100%; padding: 8px; margin: 5px 0; }
         button { background: #4CAF50; color: white; cursor: pointer; }
+        #reporteOptions { display: flex; gap: 10px; }
+        #reporteOptions select { flex: 1; }
     </style>
 </head>
 <body>
-    <h2>Registro de Estudiantes</h2>
-    <form id="formulario">
-        <input type="number" name="id" placeholder="ID" required>
-        <input type="text" name="nombre" placeholder="Nombre(s)" required>
-        <input type="text" name="apellidoPaterno" placeholder="Apellido Paterno" required>
-        <input type="text" name="apellidoMaterno" placeholder="Apellido Materno" required>
 
-        <select name="turno" required>
-            <option value="">Selecciona Turno</option>
-            <option>Matutino</option>
-            <option>Vespertino</option>
-        </select>
+    <!-- SECCIÓN FORMULARIO -->
+    <div class="section">
+        <h3>Registrar Alumno</h3>
+        <form id="formulario">
+            <input type="number" name="id" placeholder="ID" required>
+            <input type="text" name="nombre" placeholder="Nombre(s)" required>
+            <input type="text" name="apellidoPaterno" placeholder="Apellido Paterno" required>
+            <input type="text" name="apellidoMaterno" placeholder="Apellido Materno" required>
 
-        <select name="grado" required>
-            <option value="">Selecciona Grado</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-        </select>
+            <select name="turno" required>
+                <option value="">Selecciona Turno</option>
+                <option>Matutino</option>
+                <option>Vespertino</option>
+            </select>
 
-        <select name="grupo" required>
-            <option value="">Selecciona Grupo</option>
-            <option>A</option>
-            <option>B</option>
-            <option>C</option>
-            <option>D</option>
-            <option>E</option>
-        </select>
+            <select name="grado" required>
+                <option value="">Grado</option>
+                <option>1</option><option>2</option><option>3</option>
+            </select>
 
-        <button type="submit">Guardar</button>
-        <p id="mensaje" style="color: green; display: none;">✅ Guardado exitosamente</p>
-    </form>
+            <select name="grupo" required>
+                <option value="">Grupo</option>
+                <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+            </select>
 
+            <button type="submit">Guardar</button>
+            <p id="mensaje" style="color: green; display: none;">✅ Guardado</p>
+        </form>
+    </div>
+
+    <!-- SECCIÓN REPORTE -->
+    <div class="section">
+        <h3>Generar Reporte PDF</h3>
+        <div id="reporteOptions">
+            <select id="rGrado">
+                <option value="todos">Todos los grados</option>
+                <option>1</option><option>2</option><option>3</option>
+            </select>
+            <select id="rGrupo">
+                <option value="todos">Todos los grupos</option>
+                <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+            </select>
+            <select id="rTurno">
+                <option value="todos">Todos los turnos</option>
+                <option>Matutino</option><option>Vespertino</option>
+            </select>
+        </div>
+        <button onclick="generarPDF()">📄 Descargar PDF</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyPkb6CJkreLcUBdAyn8hJVetVH3Le4-8GKyzkCUdJ0Rj3oLIDEDMWZoV24-F36F-bcAA/exec';
 
+        // Guardar alumno
         document.getElementById('formulario').addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = new FormData(e.target);
@@ -54,6 +77,50 @@
             document.getElementById('mensaje').style.display = 'block';
             setTimeout(() => document.getElementById('mensaje').style.display = 'none', 3000);
         });
+
+        // Generar PDF
+        async function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Obtener datos
+            const url = `${scriptURL}?action=getData&grado=${rGrado.value}&grupo=${rGrupo.value}&turno=${rTurno.value}`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            // Título
+            doc.setFontSize(16);
+            doc.text("Reporte de Alumnos", 20, 20);
+
+            // Filtros
+            doc.setFontSize(12);
+            doc.text(`Grado: ${rGrado.value} | Grupo: ${rGrupo.value} | Turno: ${rTurno.value}`, 20, 30);
+
+            // Tabla
+            let y = 50;
+            doc.setFont(undefined, 'bold');
+            doc.text("ID", 20, y);
+            doc.text("Nombre", 40, y);
+            doc.text("Turno", 120, y);
+            doc.text("Grado/Grupo", 160, y);
+
+            doc.setFont(undefined, 'normal');
+            y += 10;
+
+            data.forEach(row => {
+                doc.text(row[0], 20, y);
+                doc.text(row[1] + " " + row[2] + " " + row[3], 40, y);
+                doc.text(row[4], 120, y);
+                doc.text(row[5] + "° " + row[6], 160, y);
+                y += 10;
+                if (y > 280) {
+                    doc.addPage();
+                    y = 20;
+                }
+            });
+
+            doc.save("reporte_alumnos.pdf");
+        }
     </script>
 </body>
 </html>
