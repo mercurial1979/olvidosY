@@ -37,28 +37,26 @@
 </div>
 
 <script>
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbyIecXQs_knU_INbkd1-T7Ibme3WUD086Qthq3cSD3OKzV82mFc3cMWJNXRzvJ4oRH1Yg/exec'; // Cambia aquí la URL
+  // Aquí va el fetch para enviar los datos del formulario al Google Apps Script
   document.getElementById('formRegistro').addEventListener('submit', e => {
     e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-
-    fetch(scriptURL, {
+    const formData = new FormData(e.target);
+    fetch('TU_URL_DE_WEB_APP', {
       method: 'POST',
       body: formData
     })
     .then(response => response.json())
     .then(data => {
-      const mensajeDiv = document.getElementById('mensaje');
-      if(data.status === 'ok') {
-        mensajeDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-        form.reset();
+      // Manejar la respuesta aquí
+      if (data.status === 'ok') {
+        alert('Alumno guardado con éxito');
+        e.target.reset();
       } else {
-        mensajeDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+        alert('Error: ' + data.message);
       }
     })
     .catch(error => {
-      document.getElementById('mensaje').innerHTML = `<div class="alert alert-danger">Error al guardar: ${error.message}</div>`;
+      alert('Error en la petición: ' + error);
     });
   });
 </script>
