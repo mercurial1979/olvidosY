@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Registro de Alumnos</title>
+    <title>Sistema CRUD de Alumnos</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
+            max-width: 800px;
+            margin: 20px auto;
             padding: 20px;
             background-color: #f5f5f5;
         }
@@ -17,8 +17,9 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
-        h1 {
+        h1, h2 {
             color: #333;
             text-align: center;
         }
@@ -38,19 +39,57 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
         button {
-            width: 100%;
+            flex: 1;
             padding: 12px;
-            background-color: #4CAF50;
-            color: white;
             border: none;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 10px;
+            transition: opacity 0.3s;
         }
         button:hover {
-            background-color: #45a049;
+            opacity: 0.9;
+        }
+        .btn-primary { background-color: #4CAF50; color: white; }
+        .btn-warning { background-color: #ff9800; color: white; }
+        .btn-danger { background-color: #f44336; color: white; }
+        .btn-info { background-color: #2196F3; color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        
+        .search-section {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+        .selected {
+            background-color: #fff3cd !important;
         }
         .alert {
             padding: 15px;
@@ -68,11 +107,28 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
-        <h1>Registro de Alumnos</h1>
+        <h1>Sistema CRUD de Alumnos</h1>
+        
+        <!-- Sección de búsqueda -->
+        <div class="search-section">
+            <h2>Buscar Alumno</h2>
+            <div class="form-group">
+                <label for="buscarId">Buscar por ID:</label>
+                <input type="text" id="buscarId" placeholder="Ingresa ID del alumno">
+            </div>
+            <button onclick="buscarAlumno()" class="btn-info">Buscar</button>
+            <button onclick="listarTodos()" class="btn-secondary">Ver Todos</button>
+        </div>
+
+        <!-- Formulario de registro -->
+        <h2>Formulario de Alumno</h2>
         <form id="alumnoForm">
             <div class="form-group">
                 <label for="id">ID del Alumno:</label>
@@ -96,6 +152,9 @@
                     <option value="1">1°</option>
                     <option value="2">2°</option>
                     <option value="3">3°</option>
+                    <option value="4">4°</option>
+                    <option value="5">5°</option>
+                    <option value="6">6°</option>
                 </select>
             </div>
             
@@ -107,25 +166,60 @@
                     <option value="B">B</option>
                     <option value="C">C</option>
                     <option value="D">D</option>
-                    <option value="E">E</option>
                 </select>
             </div>
             
-            <button type="submit">Registrar Alumno</button>
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Registrar</button>
+                <button type="button" onclick="modificarAlumno()" class="btn-warning">Modificar</button>
+                <button type="button" onclick="eliminarAlumno()" class="btn-danger">Eliminar</button>
+                <button type="button" onclick="limpiarFormulario()" class="btn-secondary">Limpiar</button>
+            </div>
         </form>
         
         <div id="alert" class="alert"></div>
     </div>
 
+    <!-- Tabla de alumnos -->
+    <div class="form-container">
+        <h2>Lista de Alumnos</h2>
+        <table id="tablaAlumnos">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th>Grado</th>
+                    <th>Grupo</th>
+                    <th>Fecha Registro</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoTabla">
+            </tbody>
+        </table>
+    </div>
+
     <script>
-        // Reemplaza con tu URL de Google Apps Script
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzphUGU8-KVxyqKeTMBZEXoFEc8zg6PucHG91pqrkFW1cP754jjuSrhl2wFtOqkcpcKYg/exec';
 
+        let alumnos = [];
+        let alumnoSeleccionado = null;
+
+        // Cargar alumnos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            listarTodos();
+        });
+
+        // Función para registrar
         document.getElementById('alumnoForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const formData = new FormData(this);
+            registrarAlumno();
+        });
+
+        function registrarAlumno() {
+            const formData = new FormData(document.getElementById('alumnoForm'));
             const data = {
+                accion: 'registrar',
                 id: formData.get('id'),
                 nombre: formData.get('nombre'),
                 apellidos: formData.get('apellidos'),
@@ -133,24 +227,137 @@
                 grupo: formData.get('grupo'),
                 fecha: new Date().toLocaleString('es-MX')
             };
-            
+
+            if (alumnos.some(a => a.id === data.id)) {
+                showAlert('Ya existe un alumno con este ID', 'error');
+                return;
+            }
+
+            enviarDatos(data);
+        }
+
+        function modificarAlumno() {
+            if (!alumnoSeleccionado) {
+                showAlert('Primero busca o selecciona un alumno para modificar', 'error');
+                return;
+            }
+
+            const formData = new FormData(document.getElementById('alumnoForm'));
+            const data = {
+                accion: 'modificar',
+                id: document.getElementById('id').value,
+                nombre: formData.get('nombre'),
+                apellidos: formData.get('apellidos'),
+                grado: formData.get('grado'),
+                grupo: formData.get('grupo'),
+                fecha: new Date().toLocaleString('es-MX')
+            };
+
+            enviarDatos(data);
+        }
+
+        function eliminarAlumno() {
+            if (!alumnoSeleccionado) {
+                showAlert('Primero busca o selecciona un alumno para eliminar', 'error');
+                return;
+            }
+
+            if (confirm('¿Estás seguro de eliminar este alumno?')) {
+                const data = {
+                    accion: 'eliminar',
+                    id: document.getElementById('id').value
+                };
+                enviarDatos(data);
+            }
+        }
+
+        function buscarAlumno() {
+            const id = document.getElementById('buscarId').value;
+            if (!id) {
+                showAlert('Ingresa un ID para buscar', 'error');
+                return;
+            }
+
+            enviarDatos({ accion: 'buscar', id: id });
+        }
+
+        function listarTodos() {
+            enviarDatos({ accion: 'listar' });
+        }
+
+        function enviarDatos(data) {
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
+                mode: 'cors',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data)
             })
-            .then(() => {
-                showAlert('Alumno registrado exitosamente', 'success');
-                this.reset();
+            .then(response => response.json())
+            .then(response => {
+                if (response.result === 'success') {
+                    showAlert(response.message, 'success');
+                    if (response.data) {
+                        alumnos = response.data;
+                        actualizarTabla();
+                    }
+                    if (response.alumno) {
+                        cargarAlumnoEnFormulario(response.alumno);
+                    }
+                    if (response.accion !== 'buscar' && response.accion !== 'listar') {
+                        limpiarFormulario();
+                        listarTodos();
+                    }
+                } else {
+                    showAlert(response.message || 'Error en la operación', 'error');
+                }
             })
             .catch(error => {
-                showAlert('Error al registrar el alumno', 'error');
+                showAlert('Error de conexión', 'error');
                 console.error('Error:', error);
             });
-        });
+        }
+
+        function cargarAlumnoEnFormulario(alumno) {
+            document.getElementById('id').value = alumno.id;
+            document.getElementById('nombre').value = alumno.nombre;
+            document.getElementById('apellidos').value = alumno.apellidos;
+            document.getElementById('grado').value = alumno.grado;
+            document.getElementById('grupo').value = alumno.grupo;
+            alumnoSeleccionado = alumno;
+        }
+
+        function actualizarTabla() {
+            const cuerpoTabla = document.getElementById('cuerpoTabla');
+            cuerpoTabla.innerHTML = '';
+            
+            alumnos.forEach(alumno => {
+                const fila = cuerpoTabla.insertRow();
+                fila.innerHTML = `
+                    <td>${alumno.id}</td>
+                    <td>${alumno.nombre}</td>
+                    <td>${alumno.apellidos}</td>
+                    <td>${alumno.grado}°</td>
+                    <td>${alumno.grupo}</td>
+                    <td>${alumno.fecha}</td>
+                `;
+                fila.addEventListener('click', () => seleccionarAlumno(alumno, fila));
+            });
+        }
+
+        function seleccionarAlumno(alumno, fila) {
+            document.querySelectorAll('#cuerpoTabla tr').forEach(f => f.classList.remove('selected'));
+            fila.classList.add('selected');
+            cargarAlumnoEnFormulario(alumno);
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('alumnoForm').reset();
+            document.getElementById('buscarId').value = '';
+            alumnoSeleccionado = null;
+            document.querySelectorAll('#cuerpoTabla tr').forEach(f => f.classList.remove('selected'));
+        }
 
         function showAlert(message, type) {
             const alert = document.getElementById('alert');
