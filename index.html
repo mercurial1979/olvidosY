@@ -1,46 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Alta y código de barras</title>
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-  <style>body{font-family:Arial;margin:30px}label{display:block;margin:8px 0}</style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Registro y Consulta de Alumnos</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
-  <h1>Alta de alumno</h1>
-  <form id="formAlta">
-    <label>ID: <input name="id" required></label>
-    <label>Nombre: <input name="nombre" required></label>
-    <label>Apellido paterno: <input name="apepat" required></label>
-    <label>Apellido materno: <input name="apemat" required></label>
-    <label>Grado: <input name="grado" required></label>
-    <label>Grupo: <input name="grupo" required></label>
-    <button type="submit">Guardar y generar código</button>
+<div class="container py-5">
+  <h1 class="mb-4 text-center">Gestión de Alumnos</h1>
+  <form id="formRegistro" class="mb-5">
+    <div class="row g-3">
+      <div class="col-md-2">
+        <input type="text" name="id" class="form-control" placeholder="ID" required />
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="nombre" class="form-control" placeholder="Nombre" required />
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="apellido_paterno" class="form-control" placeholder="Apellido Paterno" required />
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="apellido_materno" class="form-control" placeholder="Apellido Materno" required />
+      </div>
+      <div class="col-md-3">
+        <input type="tel" name="telefono" class="form-control" placeholder="Teléfono" required />
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="numero_reportes" class="form-control" placeholder="Reportes" min="0" value="0" />
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Guardar Alumno</button>
   </form>
 
-  <p id="msg"></p>
+  <h3>Alumnos Registrados</h3>
+  <input type="text" id="busqueda" class="form-control mb-3" placeholder="Buscar por ID o nombre" />
 
-  <div id="barcodeDiv" style="display:none;text-align:center;margin-top:30px">
-    <svg id="barcode"></svg><br>
-    <small>Escanea este código para pasar asistencia</small>
-  </div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th><th>Nombre</th><th>Apellido Paterno</th><th>Apellido Materno</th><th>Teléfono</th><th>Reportes</th>
+      </tr>
+    </thead>
+    <tbody id="tablaAlumnos"></tbody>
+  </table>
+</div>
 
-  <script>
-    const urlScript = 'https://script.google.com/macros/s/AKfycbyFQTE9jqM8vj3Ra0PM14SqwAPqcJF2ay8pj6Akc63YAMlwJ_kVf0SNup3ixbI6Fjo/exec';
-document.getElementById('formAlta').addEventListener('submit', e => {
-      e.preventDefault();
-      const data = new FormData(e.target);
-      fetch(urlScript, {method:'POST', body:data})
-        .then(r => r.text())
-        .then(txt => {
-          document.getElementById('msg').textContent = txt;
-          const id = e.target.id.value;
-          JsBarcode('#barcode', id, {format:'CODE128', width:2, height:100});
-          document.getElementById('barcodeDiv').style.display = 'block';
-        })
-        .catch(() => document.getElementById('msg').textContent = 'Error al guardar');
-    });
-  </script>
+<script>
+  const scriptURL = 'TU_URL_APPS_SCRIPT';
+
+  // Guardar alumno
+  document.getElementById('formRegistro').addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    fetch(scriptURL, { method: 'POST', body: formData })
+      .then(res => res.text())
+      .then(() => {
+        alert('Alumno guardado');
+        e.target.reset();
+        cargarAlumnos();
+      })
+      .catch(err => alert('Error al guardar'));
+  });
+
+  // Cargar alumnos
+  async function cargarAlumnos() {
+    const res = await fetch(scriptURL);
+    const alumnos = await res.json();
+    mostrarTabla(alumnos);
+  }
+
+  // Mostrar tabla con filtro
+  function mostrarTabla(alumnos) {
+    const filtro = document.getElementById('busqueda').value.toLowerCase();
+    const tbody = document.getElementById('tablaAlumnos');
+    tbody.innerHTML = '';
+    alumnos
+      .filter(a => a.id.toLowerCase().includes(filtro) || a.nombre.toLowerCase().includes(filtro))
+      .forEach(a => {
+        tbody.innerHTML += `<tr>
+          <td>${a.id}</td>
+          <td>${a.nombre}</td>
+          <td>${a.apellido_paterno}</td>
+          <td>${a.apellido_materno}</td>
+          <td>${a.telefono}</td>
+          <td>${a.numero_reportes}</td>
+        </tr>`;
+      });
+  }
+
+  document.getElementById('busqueda').addEventListener('input', cargarAlumnos);
+  cargarAlumnos();
+</script>
 </body>
 </html>
- 
