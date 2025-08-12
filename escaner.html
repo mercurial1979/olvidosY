@@ -19,7 +19,6 @@
     const params = new URLSearchParams(location.search);
 
     const fecha  = params.get('fecha');
-    const nombre = params.get('nombre');
     const control= params.get('control');
     const grado  = params.get('grado');
     const grupo  = params.get('grupo');
@@ -31,7 +30,6 @@
     } else {
       document.getElementById('datos').innerHTML = `
         <strong>Fecha:</strong> ${fecha}<br>
-        <strong>Nombre:</strong> ${nombre}<br>
         <strong>Control:</strong> ${control}<br>
         <strong>Grado:</strong> ${grado}<br>
         <strong>Grupo:</strong> ${grupo}<br>
