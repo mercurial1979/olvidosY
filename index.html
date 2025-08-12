@@ -2,73 +2,46 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Alta y QR</title>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-  <style>
-    body{font-family:Arial;margin:30px}
-    label{display:block;margin:8px 0}
-    #qrCode{margin-top:20px}
-  </style>
+  <title>Alta y código de barras</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>body{font-family:Arial;margin:30px}label{display:block;margin:8px 0}</style>
 </head>
 <body>
   <h1>Alta de alumno</h1>
   <form id="formAlta">
-    <label>Fecha:
-      <input type="date" name="fecha" required>
-    </label>
-    <label>Número de control:
-      <input name="control" required>
-    </label>
-    <label>Grado:
-      <input name="grado" required>
-    </label>
-    <label>Grupo:
-      <input name="grupo" required>
-    </label>
-    <label>Turno:
-      <input name="turno" required>
-    </label>
-    <label>Tutor:
-      <input name="tutor" required>
-    </label>
-    <button type="submit">Dar de alta</button>
+    <label>ID: <input name="id" required></label>
+    <label>Nombre: <input name="nombre" required></label>
+    <label>Apellido paterno: <input name="apepat" required></label>
+    <label>Apellido materno: <input name="apemat" required></label>
+    <label>Grado: <input name="grado" required></label>
+    <label>Grupo: <input name="grupo" required></label>
+    <button type="submit">Guardar y generar código</button>
   </form>
 
   <p id="msg"></p>
 
-  <div id="qrCode" style="display:none">
-    <h3>Código QR para asistencia</h3>
-    <canvas id="qrCanvas"></canvas>
+  <div id="barcodeDiv" style="display:none;text-align:center;margin-top:30px">
+    <svg id="barcode"></svg><br>
+    <small>Escanea este código para pasar asistencia</small>
   </div>
 
   <script>
-    const urlScript = 'https://script.google.com/macros/s/AKfycbxt0u5TaxSC9OQeSf_84do7eQt6ulJjT8dJzis8_4Vii6RCbzPwiyt_0RPgNLJzBokC/exec'; // <-- cambia
-    const baseEsc   = 'https://mercurial1979.github.io/olvidosY/escaner.htmll'; // <-- cambia
+    const urlScript = 'https://script.google.com/macros/s/XXXXXXXX/exec'; // <-- cambia
 
-    const form = document.getElementById('formAlta');
-    const msg  = document.getElementById('msg');
-    const qrCanvas = document.getElementById('qrCanvas');
-    const qrCode   = document.getElementById('qrCode');
-
-    form.addEventListener('submit', e => {
+    document.getElementById('formAlta').addEventListener('submit', e => {
       e.preventDefault();
-      const data = new FormData(form);
+      const data = new FormData(e.target);
       fetch(urlScript, {method:'POST', body:data})
         .then(r => r.text())
         .then(txt => {
-          msg.textContent = txt; // "Alta registrada"
-          // capturamos en el mismo orden
-          const fecha  = form.fecha.value.trim();
-          const control= form.control.value.trim();
-          const grado  = form.grado.value.trim();
-          const grupo  = form.grupo.value.trim();
-          const turno  = form.turno.value.trim();
-          const tutor  = form.tutor.value.trim();
-
-          const qrUrl = `${baseEsc}?fecha=${encodeURIComponent(fecha)}&nombre=${encodeURIComponent(nombre)}&control=${encodeURIComponent(control)}&grado=${encodeURIComponent(grado)}&grupo=${encodeURIComponent(grupo)}&turno=${encodeURIComponent(turno)}&tutor=${encodeURIComponent(tutor)}`;
+          document.getElementById('msg').textContent = txt;
+          const id = e.target.id.value;
+          JsBarcode('#barcode', id, {format:'CODE128', width:2, height:100});
+          document.getElementById('barcodeDiv').style.display = 'block';
         })
-        .catch(() => msg.textContent = 'Error al dar de alta');
+        .catch(() => document.getElementById('msg').textContent = 'Error al guardar');
     });
   </script>
 </body>
 </html>
+ 
