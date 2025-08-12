@@ -15,24 +15,28 @@
   <p id="msg">Procesando...</p>
 
   <script>
-    const urlScript = 'https://script.google.com/macros/s/AKfycbwc0uteSefxudfYpsDXRrGhy383d6bp42Cgt5AQwL2ox7uqrl_1lcvZiFb1dnrU0OkP/exec'; // <-- cambia esto
-
+    const urlScript = 'https://script.google.com/macros/s/XXXXXXXX/exec'; // <-- cambia
     const params = new URLSearchParams(location.search);
-    const control = params.get('control');
-    const nombre  = params.get('nombre');
-    const grado   = params.get('grado');
-    const grupo   = params.get('grupo');
-    const turno   = params.get('turno');
+
+    const fecha  = params.get('fecha');
+    const nombre = params.get('nombre');
+    const control= params.get('control');
+    const grado  = params.get('grado');
+    const grupo  = params.get('grupo');
+    const turno  = params.get('turno');
+    const tutor  = params.get('tutor');
 
     if (!control || !nombre) {
       document.getElementById('msg').textContent = 'Faltan datos en el QR';
     } else {
       document.getElementById('datos').innerHTML = `
+        <strong>Fecha:</strong> ${fecha}<br>
         <strong>Nombre:</strong> ${nombre}<br>
         <strong>Control:</strong> ${control}<br>
         <strong>Grado:</strong> ${grado}<br>
         <strong>Grupo:</strong> ${grupo}<br>
-        <strong>Turno:</strong> ${turno}
+        <strong>Turno:</strong> ${turno}<br>
+        <strong>Tutor:</strong> ${tutor}
       `;
 
       fetch(urlScript + '?control=' + encodeURIComponent(control))
