@@ -41,9 +41,18 @@
     console.log('URL generada:', urlScript + '?control=' + encodeURIComponent(control));
 console.log('Parámetros recibidos:', { control, nombre, grado, grupo, turno });
     fetch(urlScript + '?control=' + encodeURIComponent(control))
-      .then(r=>r.text())
-      .then(msg => document.getElementById('msg').textContent = msg)
-      .catch(() => document.getElementById('msg').textContent = 'Error al registrar');
+  .then(r => {
+    console.log('Respuesta HTTP:', r.status);
+    return r.text();
+  })
+  .then(txt => {
+    console.log('Texto del servidor:', txt);
+    document.getElementById('msg').textContent = txt;
+  })
+  .catch(err => {
+    console.error('Fallo al contactar:', err);
+    document.getElementById('msg').textContent = 'Error de red o CORS';
+  });
   }
 </script>
 </body>
