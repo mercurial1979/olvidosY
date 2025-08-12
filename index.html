@@ -4,10 +4,37 @@
     <meta charset="UTF-8">
     <title>Registro y Reportes</title>
     <style>
-        body { font-family: Arial; max-width: 600px; margin: 30px auto; padding: 20px; }
-        .section { background: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 8px; }
-        input, select, button { width: 100%; padding: 8px; margin: 5px 0; }
-        button { background: #4CAF50; color: white; cursor: pointer; }
+        body { 
+            font-family: Arial; 
+            max-width: 600px; 
+            margin: 30px auto; 
+            padding: 20px; 
+            background-color: #808080; /* Fondo gris */
+            color: #0000FF; /* Letras azules */
+        }
+        .section { 
+            background: #ffffff; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2, h3 { color: #0000FF; }
+        input, select, button { 
+            width: 100%; 
+            padding: 8px; 
+            margin: 5px 0; 
+            color: #0000FF; 
+            border: 1px solid #0000FF;
+            border-radius: 4px;
+        }
+        button { 
+            background: #4CAF50; 
+            color: white; 
+            cursor: pointer; 
+            border: none;
+        }
+        button:hover { background: #45a049; }
         #reporteOptions { display: flex; gap: 10px; }
         #reporteOptions select { flex: 1; }
     </style>
@@ -16,7 +43,7 @@
 
     <!-- SECCIÓN FORMULARIO -->
     <div class="section">
-        <h3>Registrar Alumno</h3>
+        <h2 style="color: #0000FF;">Registrar Alumno</h2>
         <form id="formulario">
             <input type="number" name="id" placeholder="ID" required>
             <input type="text" name="nombre" placeholder="Nombre(s)" required>
@@ -40,13 +67,13 @@
             </select>
 
             <button type="submit">Guardar</button>
-            <p id="mensaje" style="color: green; display: none;">✅ Guardado</p>
+            <p id="mensaje" style="color: #0000FF; display: none;">✅ Guardado</p>
         </form>
     </div>
 
     <!-- SECCIÓN REPORTE -->
     <div class="section">
-        <h3>Generar Reporte PDF</h3>
+        <h2 style="color: #0000FF;">Generar Reporte PDF</h2>
         <div id="reporteOptions">
             <select id="rGrado">
                 <option value="todos">Todos los grados</option>
@@ -83,20 +110,17 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // Obtener datos
+            doc.setTextColor(0, 0, 255); // Letras azules en PDF
+            doc.setFontSize(16);
+            doc.text("Reporte de Alumnos", 20, 20);
+
+            doc.setFontSize(12);
+            doc.text(`Grado: ${rGrado.value} | Grupo: ${rGrupo.value} | Turno: ${rTurno.value}`, 20, 30);
+
             const url = `${scriptURL}?action=getData&grado=${rGrado.value}&grupo=${rGrupo.value}&turno=${rTurno.value}`;
             const res = await fetch(url);
             const data = await res.json();
 
-            // Título
-            doc.setFontSize(16);
-            doc.text("Reporte de Alumnos", 20, 20);
-
-            // Filtros
-            doc.setFontSize(12);
-            doc.text(`Grado: ${rGrado.value} | Grupo: ${rGrupo.value} | Turno: ${rTurno.value}`, 20, 30);
-
-            // Tabla
             let y = 50;
             doc.setFont(undefined, 'bold');
             doc.text("ID", 20, y);
