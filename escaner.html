@@ -38,6 +38,8 @@
     `;
 
     // Registramos la asistencia
+    console.log('URL generada:', urlScript + '?control=' + encodeURIComponent(control));
+console.log('Parámetros recibidos:', { control, nombre, grado, grupo, turno });
     fetch(urlScript + '?control=' + encodeURIComponent(control))
       .then(r=>r.text())
       .then(msg => document.getElementById('msg').textContent = msg)
