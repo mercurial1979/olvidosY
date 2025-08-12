@@ -70,8 +70,6 @@
           const tutor  = form.tutor.value.trim();
 
           const qrUrl = `${baseEsc}?fecha=${encodeURIComponent(fecha)}&nombre=${encodeURIComponent(nombre)}&control=${encodeURIComponent(control)}&grado=${encodeURIComponent(grado)}&grupo=${encodeURIComponent(grupo)}&turno=${encodeURIComponent(turno)}&tutor=${encodeURIComponent(tutor)}`;
-          QRCode.toCanvas(qrCanvas, qrUrl);
-          qrCode.style.display = 'block';
         })
         .catch(() => msg.textContent = 'Error al dar de alta');
     });
