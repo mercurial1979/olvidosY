@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Asistencia</title>
+</head>
+<body>
+  <h1>Registro de Asistencia</h1>
+  <form id="formAsistencia">
+    <label>Nombre: <input type="text" name="nombre" required></label><br>
+    <label>Fecha: <input type="date" name="fecha" required></label><br>
+    <label>¿Asistió?
+      <select name="asistio">
+        <option value="Sí">Sí</option>
+        <option value="No">No</option>
+      </select>
+    </label><br>
+    <button type="submit">Registrar</button>
+  </form>
+
+  <p id="mensaje"></p>
+
+  <script>
+    const form = document.getElementById('formAsistencia');
+    const mensaje = document.getElementById('mensaje');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const url = 'PON_AQUÍ_TU_URL_DE_GOOGLE_APPS_SCRIPT';
+
+      fetch(url, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        mensaje.textContent = data;
+        form.reset();
+      })
+      .catch(error => {
+        mensaje.textContent = 'Error al enviar los datos';
+      });
+    });
+  </script>
+</body>
+</html>
