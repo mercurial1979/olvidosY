@@ -13,6 +13,9 @@
 <body>
   <h1>Alta de alumno</h1>
   <form id="formAlta">
+    <label>Fecha:
+      <input type="date" name="fecha" required>
+    </label>
     <label>Nombre:
       <input name="nombre" required>
     </label>
@@ -42,8 +45,8 @@
   </div>
 
   <script>
-    const urlScript = 'https://script.google.com/macros/s/AKfycbwc0uteSefxudfYpsDXRrGhy383d6bp42Cgt5AQwL2ox7uqrl_1lcvZiFb1dnrU0OkP/exec'; // <-- cambia esto
-    const baseEsc   = 'https://mercurial1979.github.io/olvidosY/escaner.html'; // <-- cambia esto
+    const urlScript = 'https://script.google.com/macros/s/XXXXXXXX/exec'; // <-- cambia
+    const baseEsc   = 'https://tunombre.github.io/tu-repo/escaner.html'; // <-- cambia
 
     const form = document.getElementById('formAlta');
     const msg  = document.getElementById('msg');
@@ -57,12 +60,16 @@
         .then(r => r.text())
         .then(txt => {
           msg.textContent = txt; // "Alta registrada"
-          const control = form.control.value.trim();
-          const nombre  = form.nombre.value.trim();
-          const grado   = form.grado.value.trim();
-          const grupo   = form.grupo.value.trim();
-          const turno   = form.turno.value.trim();
-          const qrUrl = `${baseEsc}?control=${encodeURIComponent(control)}&nombre=${encodeURIComponent(nombre)}&grado=${encodeURIComponent(grado)}&grupo=${encodeURIComponent(grupo)}&turno=${encodeURIComponent(turno)}`;
+          // capturamos en el mismo orden
+          const fecha  = form.fecha.value.trim();
+          const nombre = form.nombre.value.trim();
+          const control= form.control.value.trim();
+          const grado  = form.grado.value.trim();
+          const grupo  = form.grupo.value.trim();
+          const turno  = form.turno.value.trim();
+          const tutor  = form.tutor.value.trim();
+
+          const qrUrl = `${baseEsc}?fecha=${encodeURIComponent(fecha)}&nombre=${encodeURIComponent(nombre)}&control=${encodeURIComponent(control)}&grado=${encodeURIComponent(grado)}&grupo=${encodeURIComponent(grupo)}&turno=${encodeURIComponent(turno)}&tutor=${encodeURIComponent(tutor)}`;
           QRCode.toCanvas(qrCanvas, qrUrl);
           qrCode.style.display = 'block';
         })
