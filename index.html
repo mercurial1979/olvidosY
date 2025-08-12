@@ -37,17 +37,18 @@
 </div>
 
 <script>
-  // Aquí va el fetch para enviar los datos del formulario al Google Apps Script
   document.getElementById('formRegistro').addEventListener('submit', e => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    fetch('TU_URL_DE_WEB_APP', {
+    fetch('https://script.google.com/macros/s/TU_SCRIPT_ID/exec', {
       method: 'POST',
       body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('Respuesta no OK');
+      return response.json();
+    })
     .then(data => {
-      // Manejar la respuesta aquí
       if (data.status === 'ok') {
         alert('Alumno guardado con éxito');
         e.target.reset();
@@ -56,7 +57,7 @@
       }
     })
     .catch(error => {
-      alert('Error en la petición: ' + error);
+      alert('Error en la petición: ' + error.message);
     });
   });
 </script>
