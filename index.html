@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Registro y Consulta de Alumnos</title>
+<title>Registrar Alumno</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
 <div class="container py-5">
-  <h1 class="mb-4 text-center">Gestión de Alumnos</h1>
-  <form id="formRegistro" class="mb-5">
+  <h2 class="mb-4">Registrar Alumno</h2>
+  <form id="formRegistro">
     <div class="row g-3">
       <div class="col-md-2">
         <input type="text" name="id" class="form-control" placeholder="ID" required />
@@ -33,65 +33,35 @@
     <button type="submit" class="btn btn-primary mt-3">Guardar Alumno</button>
   </form>
 
-  <h3>Alumnos Registrados</h3>
-  <input type="text" id="busqueda" class="form-control mb-3" placeholder="Buscar por ID o nombre" />
-
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>ID</th><th>Nombre</th><th>Apellido Paterno</th><th>Apellido Materno</th><th>Teléfono</th><th>Reportes</th>
-      </tr>
-    </thead>
-    <tbody id="tablaAlumnos"></tbody>
-  </table>
+  <div id="mensaje" class="mt-3"></div>
 </div>
 
 <script>
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbyIecXQs_knU_INbkd1-T7Ibme3WUD086Qthq3cSD3OKzV82mFc3cMWJNXRzvJ4oRH1Yg/exec';
+  const scriptURL = 'TU_URL_DE_GOOGLE_APPS_SCRIPT'; // Cambia aquí la URL
 
-  // Guardar alumno
   document.getElementById('formRegistro').addEventListener('submit', e => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const form = e.target;
+    const formData = new FormData(form);
 
-    fetch(scriptURL, { method: 'POST', body: formData })
-      .then(res => res.text())
-      .then(() => {
-        alert('Alumno guardado');
-        e.target.reset();
-        cargarAlumnos();
-      })
-      .catch(err => alert('Error al guardar'));
+    fetch(scriptURL, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      const mensajeDiv = document.getElementById('mensaje');
+      if(data.status === 'ok') {
+        mensajeDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+        form.reset();
+      } else {
+        mensajeDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+      }
+    })
+    .catch(error => {
+      document.getElementById('mensaje').innerHTML = `<div class="alert alert-danger">Error al guardar: ${error.message}</div>`;
+    });
   });
-
-  // Cargar alumnos
-  async function cargarAlumnos() {
-    const res = await fetch(scriptURL);
-    const alumnos = await res.json();
-    mostrarTabla(alumnos);
-  }
-
-  // Mostrar tabla con filtro
-  function mostrarTabla(alumnos) {
-    const filtro = document.getElementById('busqueda').value.toLowerCase();
-    const tbody = document.getElementById('tablaAlumnos');
-    tbody.innerHTML = '';
-    alumnos
-      .filter(a => a.id.toLowerCase().includes(filtro) || a.nombre.toLowerCase().includes(filtro))
-      .forEach(a => {
-        tbody.innerHTML += `<tr>
-          <td>${a.id}</td>
-          <td>${a.nombre}</td>
-          <td>${a.apellido_paterno}</td>
-          <td>${a.apellido_materno}</td>
-          <td>${a.telefono}</td>
-          <td>${a.numero_reportes}</td>
-        </tr>`;
-      });
-  }
-
-  document.getElementById('busqueda').addEventListener('input', cargarAlumnos);
-  cargarAlumnos();
 </script>
 </body>
 </html>
