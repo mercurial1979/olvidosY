@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de asistencia</title>
+  <title>Registrar asistencia</title>
   <style>
     body{font-family:Arial;text-align:center;margin-top:50px}
     .info{font-size:1.2em;margin-bottom:20px}
@@ -15,45 +15,31 @@
   <p id="msg">Procesando...</p>
 
   <script>
-  const urlScript = 'https://script.google.com/macros/s/AKfycbwc0uteSefxudfYpsDXRrGhy383d6bp42Cgt5AQwL2ox7uqrl_1lcvZiFb1dnrU0OkP/exec
-';
-  const params = new URLSearchParams(location.search);
+    const urlScript = 'https://script.google.com/macros/s/AKfycbwc0uteSefxudfYpsDXRrGhy383d6bp42Cgt5AQwL2ox7uqrl_1lcvZiFb1dnrU0OkP/exec'; // <-- cambia esto
 
-  const control = params.get('control');
-  const nombre  = params.get('nombre');
-  const grado   = params.get('grado');
-  const grupo   = params.get('grupo');
-  const turno   = params.get('turno');
+    const params = new URLSearchParams(location.search);
+    const control = params.get('control');
+    const nombre  = params.get('nombre');
+    const grado   = params.get('grado');
+    const grupo   = params.get('grupo');
+    const turno   = params.get('turno');
 
-  if (!control || !nombre) {
-    document.getElementById('msg').textContent = 'Faltan datos en el QR';
-  } else {
-    // Mostramos los datos
-    document.getElementById('datos').innerHTML = `
-      <strong>Nombre:</strong> ${nombre}<br>
-      <strong>Control:</strong> ${control}<br>
-      <strong>Grado:</strong> ${grado}<br>
-      <strong>Grupo:</strong> ${grupo}<br>
-      <strong>Turno:</strong> ${turno}
-    `;
+    if (!control || !nombre) {
+      document.getElementById('msg').textContent = 'Faltan datos en el QR';
+    } else {
+      document.getElementById('datos').innerHTML = `
+        <strong>Nombre:</strong> ${nombre}<br>
+        <strong>Control:</strong> ${control}<br>
+        <strong>Grado:</strong> ${grado}<br>
+        <strong>Grupo:</strong> ${grupo}<br>
+        <strong>Turno:</strong> ${turno}
+      `;
 
-    // Registramos la asistencia
-    console.log('URL generada:', urlScript + '?control=' + encodeURIComponent(control));
-console.log('Parámetros recibidos:', { control, nombre, grado, grupo, turno });
-    fetch(urlScript + '?control=' + encodeURIComponent(control))
-  .then(r => {
-    console.log('Respuesta HTTP:', r.status);
-    return r.text();
-  })
-  .then(txt => {
-    console.log('Texto del servidor:', txt);
-    document.getElementById('msg').textContent = txt;
-  })
-  .catch(err => {
-    console.error('Fallo al contactar:', err);
-    document.getElementById('msg').textContent = 'Error de red o CORS';
-  });
-  }
-</script>
+      fetch(urlScript + '?control=' + encodeURIComponent(control))
+        .then(r => r.text())
+        .then(txt => document.getElementById('msg').textContent = txt) // "Asistencia registrada"
+        .catch(() => document.getElementById('msg').textContent = 'Error al registrar');
+    }
+  </script>
 </body>
 </html>
