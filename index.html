@@ -26,9 +26,8 @@
   </div>
 
   <script>
-    const urlScript = 'https://script.google.com/macros/s/AKfycbyFQTE9jqM8vj3Ra0PM14SqwAPqcJF2ay8pj6Akc63YAMlwJ_kVf0SNup3ixbI6Fjo/exec'; // <-- cambia
-
-    document.getElementById('formAlta').addEventListener('submit', e => {
+    const urlScript = 'https://script.google.com/macros/s/AKfycbyFQTE9jqM8vj3Ra0PM14SqwAPqcJF2ay8pj6Akc63YAMlwJ_kVf0SNup3ixbI6Fjo/exec';
+document.getElementById('formAlta').addEventListener('submit', e => {
       e.preventDefault();
       const data = new FormData(e.target);
       fetch(urlScript, {method:'POST', body:data})
