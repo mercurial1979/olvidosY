@@ -39,10 +39,19 @@
         <strong>Tutor:</strong> ${tutor}
       `;
 
-      fetch(urlScript + '?control=' + encodeURIComponent(control))
-        .then(r => r.text())
-        .then(txt => document.getElementById('msg').textContent = txt) // "Asistencia registrada"
-        .catch(() => document.getElementById('msg').textContent = 'Error al registrar');
+      // Reemplaza tu fetch actual por este:
+const body = new URLSearchParams({
+  control: control,
+  nombre:  nombre,
+  grado:   grado,
+  grupo:   grupo,
+  turno:   turno,
+  tutor:   tutor
+});
+fetch(urlScript, { method: 'POST', body })
+  .then(r => r.text())
+  .then(txt => document.getElementById('msg').textContent = txt)
+  .catch(() => document.getElementById('msg').textContent = 'Error al registrar');
     }
   </script>
 </body>
