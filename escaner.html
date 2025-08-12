@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de asistencia</title>
+  <style>
+    body{font-family:Arial;text-align:center;margin-top:50px}
+    .info{font-size:1.2em;margin-bottom:20px}
+  </style>
+</head>
+<body>
+  <h1>Confirmar asistencia</h1>
+
+  <div class="info" id="datos"></div>
+  <p id="msg">Procesando...</p>
+
+  <script>
+    const urlScript = 'https://script.google.com/macros/s/XXXXXXXX/exec'; // <-- cambia XXXXXX
+    const params = new URLSearchParams(location.search);
+
+    const control = params.get('control');
+    const grado   = params.get('grado');
+    const grupo   = params.get('grupo');
+    const turno   = params.get('turno');
+
+    if (!control) {
+      document.getElementById('msg').textContent = 'Faltan datos en el QR';
+    } else {
+      // Mostramos los datos
+      document.getElementById('datos').innerHTML = `
+        <strong>Control:</strong> ${control}<br>
+        <strong>Grado:</strong> ${grado}<br>
+        <strong>Grupo:</strong> ${grupo}<br>
+        <strong>Turno:</strong> ${turno}
+      `;
+
+      // Registramos la asistencia
+      fetch(urlScript + '?control=' + encodeURIComponent(control))
+        .then(r=>r.text())
+        .then(msg=>document.getElementById('msg').textContent = msg)
+        .catch(()=>document.getElementById('msg').textContent = 'Error al registrar');
+    }
+  </script>
+</body>
+</html>
