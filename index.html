@@ -1,63 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Registro de Asistencia</title>
+  <meta charset="UTF-8">
+  <title>Alta y QR</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 30px; }
-    label { display: block; margin: 10px 0; }
+    body{font-family:Arial;margin:30px}
+    label{display:block;margin:8px 0}
+    #qrCode{margin-top:20px}
   </style>
 </head>
 <body>
-  <h1>Registro de Asistencia</h1>
-  <form id="formAsistencia">
-    <label>
-      Nombre:
-      <input type="text" name="nombre" required />
+  <h1>Alta de alumno y generación de QR</h1>
+  <form id="formAlta">
+    <label>Número de control:
+      <input type="text" name="control" required>
     </label>
-
-    <label>
-      Fecha:
-      <input type="date" name="fecha" required />
+    <label>Grado:
+      <input type="text" name="grado" required>
     </label>
-
-    <label>
-      ¿Asistió?
-      <select name="asistio">
-        <option value="Sí">Sí</option>
-        <option value="No">No</option>
-      </select>
+    <label>Grupo:
+      <input type="text" name="grupo" required>
     </label>
-
-    <button type="submit">Registrar</button>
+    <label>Turno:
+      <input type="text" name="turno" required>
+    </label>
+    <label>Número de tutor:
+      <input type="text" name="tutor" required>
+    </label>
+    <button type="submit">Dar de alta</button>
   </form>
 
-  <p id="mensaje"></p>
+  <div id="qrCode" style="display:none">
+    <h3>Código QR para registrar asistencia</h3>
+    <canvas id="qrCanvas"></canvas>
+    <p><a id="qrLink" target="_blank">Abrir enlace del QR</a></p>
+  </div>
 
   <script>
-    const form = document.getElementById('formAsistencia');
-    const mensaje = document.getElementById('mensaje');
+  const urlScript = 'https://script.google.com/macros/s/XXXXXXXX/exec'; // <-- cambia XXXXXX
+  const form = document.getElementById('formAlta');
+  const qrDiv = document.getElementById('qrCode');
+  const qrCanvas = document.getElementById('qrCanvas');
+  const qrLink = document.getElementById('qrLink');
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = new FormData(form);
+    fetch(urlScript, {method:'POST', body:data})
+      .then(r=>r.text())
+      .then(()=>{
+        // Datos para el QR
+        const control = form.control.value.trim();
+        const grado   = form.grado.value.trim();
+        const grupo   = form.grupo.value.trim();
+        const turno   = form.turno.value.trim();
 
-      const formData = new FormData(form);
-      const url = 'https://script.google.com/macros/s/AKfycbwc0uteSefxudfYpsDXRrGhy383d6bp42Cgt5AQwL2ox7uqrl_1lcvZiFb1dnrU0OkP/exec';
+        // Creamos la URL con parámetros
+        const qrUrl = `${urlScript}?control=${encodeURIComponent(control)}&grado=${encodeURIComponent(grado)}&grupo=${encodeURIComponent(grupo)}&turno=${encodeURIComponent(turno)}`;
 
-      fetch(url, {
-        method: 'POST',
-        body: formData
-      })
-        .then(res => res.text())
-        .then(data => {
-          mensaje.textContent = data;
-          form.reset();
-        })
-        .catch(err => {
-          mensaje.textContent = 'Error al enviar los datos';
-          console.error(err);
-        });
-    });
-  </script>
+        QRCode.toCanvas(qrCanvas, qrUrl);
+        qrLink.href = qrUrl;
+        qrDiv.style.display = 'block';
+      });
+  });
+</script>
 </body>
 </html>
