@@ -11,63 +11,63 @@
   </style>
 </head>
 <body>
-  <h1>Alta de alumno y generación de QR</h1>
+  <h1>Alta de alumno</h1>
   <form id="formAlta">
-    <label>Nombre completo:
-  <input type="text" name="nombre" required>
-</label>
+    <label>Nombre:
+      <input name="nombre" required>
+    </label>
     <label>Número de control:
-      <input type="text" name="control" required>
+      <input name="control" required>
     </label>
     <label>Grado:
-      <input type="text" name="grado" required>
+      <input name="grado" required>
     </label>
     <label>Grupo:
-      <input type="text" name="grupo" required>
+      <input name="grupo" required>
     </label>
     <label>Turno:
-      <input type="text" name="turno" required>
+      <input name="turno" required>
     </label>
-    <label>Número de tutor:
-      <input type="text" name="tutor" required>
+    <label>Tutor:
+      <input name="tutor" required>
     </label>
     <button type="submit">Dar de alta</button>
   </form>
 
+  <p id="msg"></p>
+
   <div id="qrCode" style="display:none">
-    <h3>Código QR para registrar asistencia</h3>
+    <h3>Código QR para asistencia</h3>
     <canvas id="qrCanvas"></canvas>
-    <p><a id="qrLink" target="_blank">Abrir enlace del QR</a></p>
   </div>
 
   <script>
-  const urlScript = 'https://script.google.com/macros/s/AKfycbwc0uteSefxudfYpsDXRrGhy383d6bp42Cgt5AQwL2ox7uqrl_1lcvZiFb1dnrU0OkP/exec
-'; // <-- cambia XXXXXX
-  const form = document.getElementById('formAlta');
-  const qrDiv = document.getElementById('qrCode');
-  const qrCanvas = document.getElementById('qrCanvas');
-  const qrLink = document.getElementById('qrLink');
+    const urlScript = 'https://script.google.com/macros/s/AKfycbwc0uteSefxudfYpsDXRrGhy383d6bp42Cgt5AQwL2ox7uqrl_1lcvZiFb1dnrU0OkP/exec'; // <-- cambia esto
+    const baseEsc   = 'https://tunombre.github.io/tu-repo/escaner.html'; // <-- cambia esto
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const data = new FormData(form);
-    fetch(urlScript, {method:'POST', body:data})
-      .then(r=>r.text())
-      .then(()=>{
-        // Datos para el QR
-        const control = form.control.value.trim();
-        const grado   = form.grado.value.trim();
-        const grupo   = form.grupo.value.trim();
-        const turno   = form.turno.value.trim();
+    const form = document.getElementById('formAlta');
+    const msg  = document.getElementById('msg');
+    const qrCanvas = document.getElementById('qrCanvas');
+    const qrCode   = document.getElementById('qrCode');
 
-        // Creamos la URL con parámetros
-        const qrUrl = `${urlScript}?control=${encodeURIComponent(control)}&grado=${encodeURIComponent(grado)}&grupo=${encodeURIComponent(grupo)}&turno=${encodeURIComponent(turno)}`;
-
-        QRCode.toCanvas(qrCanvas, qrUrl);
-        qrLink.href = qrUrl;
-        qrDiv.style.display = 'block';
-      });
-  });
-</script>
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = new FormData(form);
+      fetch(urlScript, {method:'POST', body:data})
+        .then(r => r.text())
+        .then(txt => {
+          msg.textContent = txt; // "Alta registrada"
+          const control = form.control.value.trim();
+          const nombre  = form.nombre.value.trim();
+          const grado   = form.grado.value.trim();
+          const grupo   = form.grupo.value.trim();
+          const turno   = form.turno.value.trim();
+          const qrUrl = `${baseEsc}?control=${encodeURIComponent(control)}&nombre=${encodeURIComponent(nombre)}&grado=${encodeURIComponent(grado)}&grupo=${encodeURIComponent(grupo)}&turno=${encodeURIComponent(turno)}`;
+          QRCode.toCanvas(qrCanvas, qrUrl);
+          qrCode.style.display = 'block';
+        })
+        .catch(() => msg.textContent = 'Error al dar de alta');
+    });
+  </script>
 </body>
 </html>
