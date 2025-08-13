@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Estudiantes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    form, table { width: 100%; max-width: 800px; margin: auto; }
+    input, select, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+    table { border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+    .btn { width: auto; padding: 5px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h2>Registro de Estudiantes</h2>
+  <form id="form">
+    <input type="hidden" id="rowIndex" value="">
+    <input type="text" id="id" placeholder="ID" required>
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="text" id="apellidoPaterno" placeholder="Apellido Paterno" required>
+    <input type="text" id="apellidoMaterno" placeholder="Apellido Materno" required>
+    <input type="number" id="grado" placeholder="Grado (1-12)" min="1" max="12" required>
+    <input type="text" id="grupo" placeholder="Grupo" maxlength="1" required>
+    <button type="submit">Guardar</button>
+  </form>
+
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellido Paterno</th>
+        <th>Apellido Materno</th>
+        <th>Grado</th>
+        <th>Grupo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzox0SxxYaaevcNnenWyrs51O1gJERfpBraAOhItDXgOXqiAY-ffRWKvcCHbdB3_VLC/exec'; // Reemplaza con tu URL de Apps Script
+
+    const form = document.getElementById('form');
+    const tabla = document.querySelector('#tabla tbody');
+
+    // Cargar datos al iniciar
+    cargarDatos();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        id: document.getElementById('id').value,
+        nombre: document.getElementById('nombre').value,
+        apellidoPaterno: document.getElementById('apellidoPaterno').value,
+        apellidoMaterno: document.getElementById('apellidoMaterno').value,
+        grado: document.getElementById('grado').value,
+        grupo: document.getElementById('grupo').value,
+        rowIndex: document.getElementById('rowIndex').value
+      };
+
+      const accion = data.rowIndex ? 'editar' : 'guardar';
+      await fetch(`${SCRIPT_URL}?accion=${accion}`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      form.reset();
+      document.getElementById('rowIndex').value = '';
+      cargarDatos();
+    });
+
+    async function cargarDatos() {
+      const res = await fetch(`${SCRIPT_URL}?accion=listar`);
+      const datos = await res.json();
+      tabla.innerHTML = '';
+      datos.forEach((fila, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${fila.id}</td>
+          <td>${fila.nombre}</td>
+          <td>${fila.apellidoPaterno}</td>
+          <td>${fila.apellidoMaterno}</td>
+          <td>${fila.grado}</td>
+          <td>${fila.grupo}</td>
+          <td>
+            <button class="btn" onclick="editar(${index + 1})">Editar</button>
+            <button class="btn" onclick="eliminar(${index + 1})">Eliminar</button>
+          </td>
+        `;
+        tabla.appendChild(tr);
+      });
+    }
+
+    async function editar(rowIndex) {
+      const res = await fetch(`${SCRIPT_URL}?accion=obtener&row=${rowIndex}`);
+      const data = await res.json();
+      document.getElementById('rowIndex').value = rowIndex;
+      document.getElementById('id').value = data.id;
+      document.getElementById('nombre').value = data.nombre;
+      document.getElementById('apellidoPaterno').value = data.apellidoPaterno;
+      document.getElementById('apellidoMaterno').value = data.apellidoMaterno;
+      document.getElementById('grado').value = data.grado;
+      document.getElementById('grupo').value = data.grupo;
+    }
+
+    async function eliminar(rowIndex) {
+      if (confirm('¿Estás seguro de eliminar este registro?')) {
+        await fetch(`${SCRIPT_URL}?accion=eliminar&row=${rowIndex}`);
+        cargarDatos();
+      }
+    }
+  </script>
+
+</body>
+</html>
