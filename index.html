@@ -1,116 +1,47 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Estudiantes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f5f5f5;
-    }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h2 { text-align: center; }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    input[type="text"], input[type="tel"] {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .success {
-      margin-top: 15px;
-      padding: 10px;
-      background-color: #d4edda;
-      color: #155724;
-      display: none;
-    }
-  </style>
+  <title>Registro de Alumnos</title>
 </head>
 <body>
+  <h2>Registro de Alumnos</h2>
+  <form id="formRegistro">
+    <input type="text" name="id" placeholder="ID" required><br>
+    <input type="text" name="nombre" placeholder="Nombre" required><br>
+    <input type="text" name="apellido_paterno" placeholder="Apellido Paterno" required><br>
+    <input type="text" name="apellido_materno" placeholder="Apellido Materno" required><br>
+    <input type="text" name="grado" placeholder="Grado" required><br>
+    <input type="text" name="grupo" placeholder="Grupo" required><br>
+    <input type="text" name="tutor" placeholder="Nombre del Tutor" required><br>
+    <input type="text" name="telefono" placeholder="Teléfono del Tutor" required><br>
+    <button type="submit">Guardar</button>
+  </form>
 
-  <div class="container">
-    <h2>Registro de Estudiante</h2>
-    <form id="form">
-      <label>ID del Estudiante</label>
-      <input type="text" id="id" required>
-
-      <label>Nombre del Estudiante</label>
-      <input type="text" id="nombre" required>
-
-      <label>Apellido Paterno</label>
-      <input type="text" id="apellidoPaterno" required>
-
-      <label>Apellido Materno</label>
-      <input type="text" id="apellidoMaterno" required>
-
-      <label>Nombre del Tutor</label>
-      <input type="text" id="tutor" required>
-
-      <label>Teléfono del Tutor</label>
-      <input type="tel" id="telefono" required>
-
-      <button type="submit">Guardar</button>
-    </form>
-
-    <div id="success" class="success">
-      ✔ Registro guardado correctamente.
-    </div>
-  </div>
+  <p id="mensaje"></p>
 
   <script>
-    const SCRIPT_URL ='https://script.google.com/macros/s/AKfycbzlrCzJWRe9gWnka6QDyHtdkQvQtcs2eNFaNKIyZv_YG2gF3PyMm5CYzklKLCuHaNIOQg/exec'; // Reemplaza con tu URL de Apps Script
+    const scriptURL = "https://script.google.com/macros/s/AKfycbz6PzTzkls1f3wON-45NtzvhHmC5zNNskvQ-YeCtaqf-s5ky7YHPl4Q6HJEL8zF6cOS7A/exec"; // <- pega aquí la URL de Apps Script
 
-    document.getElementById('form').addEventListener('submit', async function (e) {
+    document.getElementById("formRegistro").addEventListener("submit", e => {
       e.preventDefault();
 
-      const data = {
-        id: document.getElementById('id').value,
-        nombre: document.getElementById('nombre').value,
-        apellidoPaterno: document.getElementById('apellidoPaterno').value,
-        apellidoMaterno: document.getElementById('apellidoMaterno').value,
-        tutor: document.getElementById('tutor').value,
-        telefono: document.getElementById('telefono').value
-      };
+      const formData = new FormData(e.target);
+      const datos = Object.fromEntries(formData.entries());
 
-      try {
-        await fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify(data),
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        document.getElementById('success').style.display = 'block';
-        document.getElementById('form').reset();
-        setTimeout(() => {
-          document.getElementById('success').style.display = 'none';
-        }, 3000);
-      } catch (err) {
-        alert('Error al guardar: ' + err);
-      }
+      fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(datos)
+      })
+      .then(res => res.json())
+      .then(respuesta => {
+        document.getElementById("mensaje").innerText = "Registro guardado con éxito.";
+        e.target.reset();
+      })
+      .catch(err => {
+        document.getElementById("mensaje").innerText = "Error al guardar: " + err;
+      });
     });
   </script>
-
 </body>
 </html>
