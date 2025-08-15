@@ -1,66 +1,58 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de Estudiantes</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8">
+  <title>Registro de Alumnos</title>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: auto; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 5px; }
+    button { margin-top: 15px; padding: 10px; width: 100%; }
+  </style>
 </head>
 <body>
-  <div class="wrapper">
-    <h1>Registro de Estudiantes</h1>
+  <h2>Formulario de Registro</h2>
+  <form id="formRegistro">
+    <label>ID:</label>
+    <input type="text" name="id" required>
+    
+    <label>Nombre:</label>
+    <input type="text" name="nombre" required>
+    
+    <label>Apellidos:</label>
+    <input type="text" name="apellidos" required>
+    
+    <label>Grado:</label>
+    <input type="text" name="grado" required>
+    
+    <label>Grupo:</label>
+    <input type="text" name="grupo" required>
+    
+    <label>Teléfono de contacto:</label>
+    <input type="tel" name="telefono" required>
+    
+    <button type="submit">Enviar</button>
+  </form>
 
-    <form id="form">
-      <label>ID *
-        <input type="text" name="id" required>
-      </label>
-
-      <label>Nombre(s) *
-        <input type="text" name="nombre" required>
-      </label>
-
-      <label>Apellidos *
-        <input type="text" name="apellidos" required>
-      </label>
-
-      <div class="half">
-        <label>Grado *
-          <select name="grado" required>
-            <option value="">--</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-          </select>
-        </label>
-
-        <label>Grupo *
-          <select name="grupo" required>
-            <option value="">--</option>
-            <option>A</option>
-            <option>B</option>
-            <option>C</option>
-            <option>D</option>
-            <option>E</option>
-          </select>
-        </label>
-      </div>
-
-      <label>Teléfono *
-        <input type="tel" name="telefono" pattern="[0-9]{10}" maxlength="10" required>
-      </label>
-
-      <label>Texto / Observaciones
-        <textarea name="texto" rows="3"></textarea>
-      </label>
-
-      <button type="submit">Guardar</button>
-      <button type="reset">Limpiar</button>
-    </form>
-
-    <p id="msg"></p>
-  </div>
-
-  <script src="script.js"></script>
+  <script>
+    document.getElementById("formRegistro").addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+      
+      fetch("https://script.google.com/macros/s/AKfycbxezJSK3CO0zXaPYVV_aJ8L72uWNqyOaj1_jlVZmfArK04yCUH83eSCEpaMeOiOmuct/exec", {
+        method: "POST",
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(response => {
+        alert("Datos guardados correctamente");
+        e.target.reset();
+      })
+      .catch(err => alert("Error al enviar datos: " + err));
+    });
+  </script>
 </body>
 </html>
- 
